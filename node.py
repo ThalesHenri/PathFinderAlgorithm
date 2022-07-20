@@ -48,7 +48,7 @@ class Node:
         return self.color == PURPLE
 
     def reset(self):
-        self.color == WHITE
+        self.color = WHITE
 
     def make_closed(self):
         self.color = RED

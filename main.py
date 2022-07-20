@@ -28,9 +28,9 @@ pygame.display.set_caption("Path-finder Algorithm")
 
 # main-loop
 def main(win, width, height):
-    ROWS = 50
+    ROWS = 50  # changing that will make the board to have more or less squares
     grid = make_grid(ROWS, width)
-    
+
     start = None
     end = None
 
@@ -38,6 +38,7 @@ def main(win, width, height):
     started = False
 
     while run:
+        draw(SCREEN, grid, ROWS, width)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
@@ -45,15 +46,40 @@ def main(win, width, height):
             if started:
                 continue
 
-            
+            if pygame.mouse.get_pressed()[0]:  # Left mouse button
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, ROWS, width)
+                node = grid[row][col]
+                if not start:
+                    start = node
+                    start.make_start()  # will change the color of the node
+
+                elif not end:
+                    end = node
+                    node.make_end()
+
+                elif node != start and node != end:
+                    node.make_obstacle()  # will make a node a obstacle
+
+            elif pygame.mouse.get_pressed()[2]:  # right
+                pos = pygame.mouse.get_pos()
+                row, col = get_clicked_pos(pos, ROWS, width)
+                node = grid[row][col]
+                node.reset()
+                if node == start:
+                    start = None
+                elif node == end:
+                    end = None
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE and not started:  # will start the algorithm
+                    pass
+
     pygame.quit()
 
 
-
-
-
 def draw_grid(win, rows, width):  # will draw the grid's lines
-    gap = width // rows
+    gap = width // int(rows)
     for a in range(rows):
         pygame.draw.line(win, GREY, (0, a * gap), (width, a * gap))
         for b in range(rows):
@@ -64,8 +90,8 @@ def draw_grid(win, rows, width):  # will draw the grid's lines
 def draw(win, grid, rows, width):
     win.fill(WHITE)
 
-    for rows in grid:
-        for node in rows:
+    for row in grid:
+        for node in row:
             node.draw(win)
 
     draw_grid(win, rows, width)
@@ -85,6 +111,11 @@ def heuristic(p1, p2):
     x1, x2 = p1
     y1, y2 = p2
     return abs(x1 - x2) + abs(y1, y2)
+
+
+# the main algorithm funciton
+def pathfinder():
+    pass
 
 
 """ will create a 2d list like that [[],[],[],[]] and in every position of
