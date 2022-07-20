@@ -8,6 +8,7 @@ pygame.init
 # vars
 WIDTH = 600
 HEIGHT = 600
+
 # Colors
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
@@ -27,18 +28,80 @@ pygame.display.set_caption("Path-finder Algorithm")
 
 # main-loop
 def main(win, width, height):
+    ROWS = 50
+    grid = make_grid(ROWS, width)
+    
+    start = None
+    end = None
+
     run = True
+    started = False
+
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
-        win.fill(WHITE)
-        pygame.display.update()
+
+            if started:
+                continue
+
+            
+    pygame.quit()
 
 
-def draw_grid():
-    pass
+
+
+
+def draw_grid(win, rows, width):  # will draw the grid's lines
+    gap = width // rows
+    for a in range(rows):
+        pygame.draw.line(win, GREY, (0, a * gap), (width, a * gap))
+        for b in range(rows):
+            pygame.draw.line(win, GREY, (a * gap, 0), (a * gap, width))
+
+
+# the main responsable for draw in the grid, will call other functions
+def draw(win, grid, rows, width):
+    win.fill(WHITE)
+
+    for rows in grid:
+        for node in rows:
+            node.draw(win)
+
+    draw_grid(win, rows, width)
+    pygame.display.update()
+
+
+def get_clicked_pos(pos, rows, width):
+    gap = width // rows
+    y, x = pos
+    row = y // gap
+    col = x // gap
+    return row, col
+
+
+# will uses manhantan distance formula, kinda a L distance
+def heuristic(p1, p2):
+    x1, x2 = p1
+    y1, y2 = p2
+    return abs(x1 - x2) + abs(y1, y2)
+
+
+""" will create a 2d list like that [[],[],[],[]] and in every position of
+that list will have a node object"""
+
+
+def make_grid(rows, width):
+
+    grid = []
+    gap = width // rows
+    for a in range(rows):
+        grid.append([])
+        for b in range(rows):
+            node = Node(a, b, gap, rows)
+            grid[a].append(node)
+
+    return grid
 
 
 main(SCREEN, WIDTH, HEIGHT)
