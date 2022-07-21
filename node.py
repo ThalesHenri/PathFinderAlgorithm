@@ -71,8 +71,20 @@ class Node:
     def draw(self, win):
         pygame.draw.rect(win, self.color,(self.x, self.y, self.width, self.width))
 
-    def update_neighbors(self):
-        pass
+    def update_neighbors(self, grid):
+        # checking if the down neighbor is an obstacle or a valid one
+        self.neighbor = []
+        if self.rows < self.total_rows - 1 and not grid[self.rows + 1][self.col].is_obstacle():  # DOWN
+            self.neighbor.append(grid[self.rows + 1][self.col])
+
+        if self.rows > 0 - 1 and not grid[self.rows - 1][self.col].is_obstacle():  # UP
+            self.neighbor.append(grid[self.rows - 1][self.col])
+
+        if self.col < self.total_rows - 1 and not grid[self.rows][self.col + 1].is_obstacle():  # RIGHT
+            self.neighbor.append(grid[self.rows ][self.col + 1])
+
+        if self.col > 0  and not grid[self.rows][self.col - 1].is_obstacle():  # LEFT
+            self.neighbor.append(grid[self.rows][self.col - 1])
 
     def __lt__(self, other):
         return False

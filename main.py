@@ -73,7 +73,16 @@ def main(win, width, height):
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and not started:  # will start the algorithm
-                    pass
+                    for row in grid:
+                        for node in row:
+                            node.update_neighbors(grid)
+
+                    pathfinder(lambda: draw(win, grid, ROWS, width), grid, start, end)
+
+                if event.key == pygame.K_c:
+                    start = None
+                    end = None
+                    grid = make_grid(ROWS, width)
 
     pygame.quit()
 
@@ -108,14 +117,66 @@ def get_clicked_pos(pos, rows, width):
 
 # will uses manhantan distance formula, kinda a L distance
 def heuristic(p1, p2):
-    x1, x2 = p1
-    y1, y2 = p2
-    return abs(x1 - x2) + abs(y1, y2)
+    x1, y1 = p1
+    x2, y2 = p2
+    return abs(x1 - x2) + abs(y1 - y2)
 
 
 # the main algorithm funciton
-def pathfinder():
-    pass
+def pathfinder(draw, grid, start, end):
+    count = 0
+    open_set = PriorityQueue()  # always have the lowest F to make the path
+    open_set.put((0, count, start))  # puting the starting node in the set
+    came_from = {}  # to save the the position that the node came from
+    g_score = {node: float("inf")for row in grid for node in row}
+    g_score[start] = 0
+    f_score = {node: float("inf")for row in grid for node in row}
+    f_score[start] = heuristic(start.get_pos(), end.get_pos())
+    """Every node will have a F and G score that will be used to find the path, 
+    the F is representaded by the heuristic funtion plus the G distance, witch in that,
+    algo we assumed that is one """
+    open_set_hash = {start}  # this is for cloning the open_set cuz priority queue have less funcionalites
+
+    while not open_set.empty():
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+
+        current = open_set.get()[2]
+        open_set_hash.remove(current)
+
+        if current == end:
+            #  will make the path following the came from argument
+            make_path(came_from, end, draw)
+            end.make_end()
+            return True
+
+        for neighbor in current.neighbor:
+            temp_g_score = g_score[current] + 1
+
+            # if we have a better path, add them to the open set hash
+            if temp_g_score < g_score[neighbor]:
+                came_from[neighbor] = current
+                g_score[neighbor] = temp_g_score
+                f_score[neighbor] = temp_g_score + heuristic(neighbor.get_pos(), end.get_pos())
+                if neighbor not in open_set_hash:
+                    count += 1
+                    open_set.put((f_score[neighbor], count, neighbor))
+                    open_set_hash.add(neighbor)
+                    neighbor.make_open()
+
+        draw()
+
+        if current != start:
+            current.make_closed()
+    return False
+
+
+def make_path(came_from, current, draw):
+    while current in came_from:
+        current = came_from[current]
+        current.make_path()
+        draw()
 
 
 """ will create a 2d list like that [[],[],[],[]] and in every position of
